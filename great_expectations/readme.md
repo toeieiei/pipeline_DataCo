@@ -33,20 +33,20 @@
 
 ## 🔧 ขั้นตอนการใช้งาน
 
-# 1. เปิดระบบด้วย Docker Compose
-docker compose --profile lab4 up -d
+1. เปิดระบบด้วย Docker Compose
+    docker compose --profile lab4 up -d
 
-# 2. เข้าไปในคอนเทนเนอร์ GX
-docker exec -it dp_gx bash
+2. เข้าไปในคอนเทนเนอร์ GX
+    docker exec -it dp_gx bash
 
-# 3. สร้างโปรเจกต์ Great Expectations
-great_expectations init
+3. สร้างโปรเจกต์ Great Expectations
+    great_expectations init
 
-# 4. วางสคริปต์ Python สำหรับสร้าง Expectation
-# (เช่น วางไว้ที่ gx_scripts/create_expectations.py)
+4. วางสคริปต์ Python สำหรับสร้าง Expectation
+    วางไว้ที่ gx_scripts/create_expectations.py
 
-# 5. รันสคริปต์สร้าง Expectation
-python gx_scripts/create_expectations.py
+5. รันสคริปต์สร้าง Expectation
+    python gx_scripts/create_expectations.py
 
-# 6. รัน Checkpoint เพื่อตรวจสอบข้อมูล
-great_expectations checkpoint run stg_supply_chain_checkpoint
+6. รัน Checkpoint เพื่อตรวจสอบข้อมูล
+    great_expectations checkpoint run stg_supply_chain_checkpoint
