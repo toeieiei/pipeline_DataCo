@@ -1,0 +1,14 @@
+name: supply_mart
+version: "1.0.0"
+config-version: 2
+profile: supply_mart
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  supply_mart:
+    mart:
+      +schema: mart
+      +materialized: table

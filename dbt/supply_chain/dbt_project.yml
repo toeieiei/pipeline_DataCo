@@ -1,0 +1,14 @@
+name: supply_chain
+version: "1.0.0"
+config-version: 2
+profile: supply_chain
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  supply_chain:
+    staging:
+      +schema: core              # ให้ staging ลงสคีมา core
+      +materialized: view        # เบาและเร็วสำหรับชั้น core

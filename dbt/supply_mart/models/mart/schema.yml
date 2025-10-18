@@ -1,0 +1,151 @@
+version: 2
+
+# ====================================================================
+# 1. SOURCE DEFINITION (ข้อมูลดิบ)
+# ====================================================================
+
+sources:
+  - name: supply_chain_source
+    # Schema ที่ข้อมูลดิบถูกจัดเก็บไว้ (ตามที่คุณแก้ไขล่าสุด)
+    schema: staging 
+    
+    tables:
+      # ชื่อตารางที่ถูกต้องใน PostgreSQL (ตัวพิมพ์เล็กทั้งหมด)
+      - name: stg_supply_chain
+        description: This is the raw supply chain dataset loaded into the staging schema.
+
+
+# ====================================================================
+# 2. MODEL DEFINITIONS (Star Schema Tables)
+# ====================================================================
+
+models:
+  
+  # --- DIMENSION TABLES (อยู่ใน models/supply_mart/) ---
+  
+  - name: dim_customer
+    description: "Dimension table containing unique customer attributes (มิติข้อมูลลูกค้า)."
+    columns:
+      - name: customer_key
+        description: "Primary Key (Surrogate Key) for the customer dimension."
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: "Original Customer ID from the source system (Business Key)."
+        tests:
+          - not_null
+
+  - name: dim_product
+    description: "Dimension table containing unique product and category information (มิติข้อมูลสินค้า)."
+    columns:
+      - name: product_key
+        description: "Primary Key (Surrogate Key) for the product dimension."
+        tests:
+          - not_null
+          - unique
+      - name: product_card_id
+        description: "Original Product Card ID from the source system (Business Key)."
+        tests:
+          - not_null
+      - name: product_price
+        tests:
+          - not_null
+
+  - name: dim_location
+    description: "Dimension table containing geographical information for orders (มิติข้อมูลสถานที่)."
+    columns:
+      - name: location_key
+        description: "Primary Key (Surrogate Key) for the location dimension."
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_shipping
+    description: "Dimension table containing shipping method and delivery status information (มิติข้อมูลการจัดส่ง)."
+    columns:
+      - name: shipping_key
+        description: "Primary Key (Surrogate Key) for the shipping dimension."
+        tests:
+          - not_null
+          - unique
+      - name: shipping_mode
+        tests:
+          - not_null
+
+  - name: dim_date
+    description: "Dimension table containing calendar details for order and shipping dates (มิติข้อมูลวันที่)."
+    columns:
+      - name: date_key
+        description: "Primary Key (Surrogate Key) for the date dimension."
+        tests:
+          - not_null
+          - unique
+      - name: full_date
+        tests:
+          - not_null
+          - unique
+
+  # --- FACT TABLE (อยู่ใน models/supply_mart/) ---
+  
+  - name: fct_order_items
+    description: "Core fact table containing order item measures and foreign keys to all dimensions (ตารางข้อเท็จจริงรายการสั่งซื้อ)."
+    columns:
+      - name: order_item_key
+        description: "Primary Key (Surrogate Key) for each line item."
+        tests:
+          - not_null
+          - unique
+      - name: order_item_id
+        description: "Original Order Item ID (Degenerate Dimension)."
+        tests:
+          - not_null
+      
+      # FOREIGN KEY TESTS (Relationships)
+      - name: customer_key
+        description: "FK to dim_customer."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+              
+      - name: product_key
+        description: "FK to dim_product."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+              
+      - name: order_date_key
+        description: "FK to dim_date (Order Date)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+              
+      - name: location_key
+        description: "FK to dim_location."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location')
+              field: location_key
+
+      - name: shipping_key
+        description: "FK to dim_shipping."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_shipping')
+              field: shipping_key
+              
+      # MEASURE TESTS
+      - name: sales
+        tests:
+          - not_null
+      - name: order_item_total
+        tests:
+          - not_null

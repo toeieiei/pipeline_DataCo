@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: supply_chain_source
+    schema: public                 # ถ้า Airbyte โหลดเข้าที่อื่น ให้เปลี่ยนเป็น raw/staging ตามจริง
+    tables:
+      - name: DataCoSupplyChainDataset
+        description: Raw supply chain dataset loaded from CSV
+        # ถ้ามีคอลัมน์เวลาจริง ใส่ loaded_at_field + freshness แจ้งเตือนได้
+        # loaded_at_field: _airbyte_extracted_at
+        # freshness:
+        #   warn_after: {count: 36, period: hour}
+        #   error_after: {count: 72, period: hour}
+
+models:
+  - name: stg_supply_chain
+    description: Cleaned, typed staging view for supply chain
+    columns:
+      - name: customer_id
+        tests: [not_null]
+      - name: order_item_id
+        tests: [not_null]
+      - name: sales
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
