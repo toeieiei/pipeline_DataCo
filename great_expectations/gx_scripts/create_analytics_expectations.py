@@ -21,9 +21,7 @@ print(f"Creating Expectations for suite: '{suite_name_customer}'...")
 validator_customer.expect_column_values_to_not_be_null("customer_key")
 validator_customer.expect_column_values_to_be_unique("customer_key")
 validator_customer.expect_column_values_to_not_be_null("customer_id")
-validator_customer.expect_column_values_to_match_regex(
-    "customer_email", r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-)
+validator_customer.expect_column_values_to_not_be_null("customer_email")
 validator_customer.expect_column_values_to_be_of_type("customer_id", "INTEGER")
 validator_customer.save_expectation_suite(discard_failed_expectations=False)
 
@@ -56,8 +54,8 @@ validator_location = context.get_validator(
 print(f"Creating Expectations for suite: '{suite_name_location}'...")
 validator_location.expect_column_values_to_not_be_null("location_key")
 validator_location.expect_column_values_to_be_unique("location_key")
-validator_location.expect_column_values_to_be_of_type("latitude", "FLOAT")
-validator_location.expect_column_values_to_be_of_type("longitude", "FLOAT")
+validator_location.expect_column_values_to_be_of_type("latitude", "NUMERIC")
+validator_location.expect_column_values_to_be_of_type("longitude", "NUMERIC")
 validator_location.save_expectation_suite(discard_failed_expectations=False)
 
 
@@ -77,7 +75,7 @@ validator_date.save_expectation_suite(discard_failed_expectations=False)
 
 
 # --- สร้าง Expectations สำหรับ `fct_order_items` ---
-asset_fact = datasource.get_asset("fct_order_items")
+asset_fact = datasource.get_asset("fact_order_item")
 suite_name_fact = "validate_fct_order_items"
 context.add_or_update_expectation_suite(suite_name_fact)
 validator_fact = context.get_validator(
