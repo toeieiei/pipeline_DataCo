@@ -7,9 +7,10 @@
 
 -- Dimension: dim_date (เฉพาะวันที่ที่ปรากฏในข้อมูล)
 WITH all_dates AS (
-    SELECT order_datetime AS full_datetime FROM {{ ref('stg_supply_chain') }}
+    -- อ้างอิงตาราง Core ที่สร้างสำเร็จแล้ว
+    SELECT order_datetime AS full_datetime FROM core_core.supply_chain
     UNION
-    SELECT shipping_datetime AS full_datetime FROM {{ ref('stg_supply_chain') }}
+    SELECT shipping_datetime AS full_datetime FROM core_core.supply_chain
 ),
 
 unique_dates AS (
@@ -20,8 +21,8 @@ unique_dates AS (
 )
 
 SELECT
-    -- สร้าง Surrogate Key (date_key) จากวันที่
-    {{ dbt_utils.surrogate_key(['full_date']) }} AS date_key,
+    -- แก้ไข: ใช้ PostgreSQL MD5 Hash แทน dbt_utils.surrogate_key
+    md5(CAST(full_date AS text)) AS date_key,
     
     full_date,
     EXTRACT(DAY FROM full_date) AS day_of_month,

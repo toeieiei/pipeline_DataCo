@@ -7,8 +7,9 @@
 
 -- Dimension: dim_product
 SELECT
-    -- สร้าง Surrogate Key (product_key)
-    {{ dbt_utils.surrogate_key(['product_card_id']) }} AS product_key,
+    -- แก้ไข: ใช้ PostgreSQL MD5 Hash แทน dbt_utils.surrogate_key
+    -- product_key ใช้ product_card_id เป็น Business Key
+    md5(cast(product_card_id as text)) AS product_key,
     
     product_card_id,
     product_name,
@@ -24,6 +25,6 @@ FROM (
         product_price,
         category_name,
         department_name
-    FROM {{ ref('stg_supply_chain') }}
-    WHERE product_card_id IS NOT NULL -- รับประกันว่ามี Business Key
+    FROM core_core.supply_chain -- อ้างอิงตรงไปยัง Table ที่สร้างสำเร็จแล้ว
+    WHERE product_card_id IS NOT NULL 
 ) AS unique_products

@@ -7,30 +7,35 @@
 
 -- Fact Table: fct_order_items
 WITH stg AS (
-    SELECT * FROM {{ ref('stg_supply_chain') }}
+    -- อ้างอิง Core Model โดยตรง (จากโปรเจกต์ supply_chain)
+    SELECT * FROM core_core.supply_chain
 ),
 
--- นำเข้า Keys จาก Dimension Tables
+-- นำเข้า Keys จาก Dimension Tables (แก้ไข Schema เป็น mart_supply_mart)
 dim_customer AS (
-    SELECT customer_key, customer_id FROM {{ ref('dim_customer') }}
+    SELECT customer_key, customer_id FROM mart_supply_mart.dim_customer
 ),
 dim_product AS (
-    SELECT product_key, product_card_id FROM {{ ref('dim_product') }}
+    SELECT product_key, product_card_id FROM mart_supply_mart.dim_product
 ),
 dim_location AS (
-    SELECT location_key, order_city, order_state, order_country, order_region, market, latitude, longitude FROM {{ ref('dim_location') }}
+    SELECT location_key, order_city, order_state, order_country, order_region, market, latitude, longitude FROM mart_supply_mart.dim_location
 ),
 dim_shipping AS (
-    SELECT shipping_key, shipping_mode, delivery_status FROM {{ ref('dim_shipping') }}
+    SELECT shipping_key, shipping_mode, delivery_status FROM mart_supply_mart.dim_shipping
 ),
 dim_date AS (
-    SELECT date_key, full_date FROM {{ ref('dim_date') }}
+    SELECT date_key, full_date FROM mart_supply_mart.dim_date
 ),
 
 final AS (
     SELECT
-        -- Primary Key (PK) และ Business Key
-        {{ dbt_utils.surrogate_key(['stg.order_item_id', 'stg.order_id']) }} AS order_item_key,
+        -- Primary Key (PK) และ Business Key (แก้ไข: ใช้ MD5 Hash)
+        md5(
+            cast(stg.order_item_id as text) || '|' || 
+            cast(stg.order_id as text)
+        ) AS order_item_key,
+        
         stg.order_item_id,
         stg.order_id,
         
@@ -65,20 +70,20 @@ final AS (
     LEFT JOIN dim_customer dc ON stg.customer_id = dc.customer_id
     LEFT JOIN dim_product dp ON stg.product_card_id = dp.product_card_id
     
-    -- JOIN Location Key (ใช้หลายคอลัมน์เพื่อหา Key)
+    -- JOIN Location Key (ใช้ COALESCE เพื่อจัดการ NULL)
     LEFT JOIN dim_location dl 
-        ON stg.order_city = dl.order_city
-        AND stg.order_state = dl.order_state
-        AND stg.order_country = dl.order_country
-        AND stg.order_region = dl.order_region
-        AND stg.market = dl.market
-    
-    -- JOIN Shipping Key
+        ON coalesce(stg.order_city, '') = coalesce(dl.order_city, '')
+        AND coalesce(stg.order_state, '') = coalesce(dl.order_state, '')
+        AND coalesce(stg.order_country, '') = coalesce(dl.order_country, '')
+        AND coalesce(stg.order_region, '') = coalesce(dl.order_region, '')
+        AND coalesce(stg.market, '') = coalesce(dl.market, '')
+        
+    -- JOIN Shipping Key (ใช้ COALESCE เพื่อจัดการ NULL)
     LEFT JOIN dim_shipping ds
-        ON stg.shipping_mode = ds.shipping_mode
-        AND stg.delivery_status = ds.delivery_status
+        ON coalesce(stg.shipping_mode, '') = coalesce(ds.shipping_mode, '')
+        AND coalesce(stg.delivery_status, '') = coalesce(ds.delivery_status, '')
 
-    -- JOIN Date Keys (ต้อง JOIN กับ dim_date สองครั้ง)
+    -- JOIN Date Keys 
     LEFT JOIN dim_date dod 
         ON CAST(stg.order_datetime AS DATE) = dod.full_date
     LEFT JOIN dim_date dsd 

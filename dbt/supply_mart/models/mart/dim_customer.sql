@@ -7,8 +7,9 @@
 
 -- Dimension: dim_customer
 SELECT
-    -- สร้าง Surrogate Key (customer_key)
-    {{ dbt_utils.surrogate_key(['customer_id']) }} AS customer_key,
+    -- แก้ไข: ใช้ PostgreSQL MD5 Hash แทน dbt_utils.surrogate_key
+    md5(cast(customer_id as text)) AS customer_key, 
+    -- ถ้า customer_key ใช้หลายคอลัมน์ ควรต่อสตริงด้วย || '|' ||
     
     customer_id,
     customer_fname,
@@ -24,6 +25,6 @@ FROM (
         customer_lname,
         customer_segment,
         customer_email
-    FROM {{ ref('stg_supply_chain') }}
-    WHERE customer_id IS NOT NULL -- รับประกันว่ามี Business Key
+    FROM core_core.supply_chain -- อ้างอิงตรงไปยัง Table ที่สร้างสำเร็จแล้ว
+    WHERE customer_id IS NOT NULL 
 ) AS unique_customers
