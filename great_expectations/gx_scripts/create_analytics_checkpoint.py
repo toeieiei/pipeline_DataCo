@@ -11,7 +11,7 @@ asset_customer = ds.get_asset("dim_customer")
 asset_product = ds.get_asset("dim_product")
 asset_location = ds.get_asset("dim_location")
 asset_date = ds.get_asset("dim_date")         
-asset_fact = ds.get_asset("fct_order_items")
+asset_fact = ds.get_asset("fact_order_item")
 
 checkpoint_name = 'Analytics_checkpoint'
 
