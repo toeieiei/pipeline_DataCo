@@ -6,13 +6,12 @@ version: 2
 
 sources:
   - name: supply_chain_source
-    # Schema ที่ข้อมูลดิบถูกจัดเก็บไว้ (ตามที่คุณแก้ไขล่าสุด)
-    schema: staging 
-    
+    # 🚨 FIX 1: แก้ไข Schema ตามที่คุณแจ้ง
+    schema: core_core 
     tables:
-      # ชื่อตารางที่ถูกต้องใน PostgreSQL (ตัวพิมพ์เล็กทั้งหมด)
-      - name: stg_supply_chain
-        description: This is the raw supply chain dataset loaded into the staging schema.
+      # 🚨 FIX 2: แก้ไขชื่อ Table ตามที่คุณแจ้ง
+      - name: supply_chain
+        description: This is the raw supply chain dataset loaded into the core_core schema.
 
 
 # ====================================================================
@@ -21,7 +20,7 @@ sources:
 
 models:
   
-  # --- DIMENSION TABLES (อยู่ใน models/supply_mart/) ---
+  # --- DIMENSION TABLES ---
   
   - name: dim_customer
     description: "Dimension table containing unique customer attributes (มิติข้อมูลลูกค้า)."
@@ -35,6 +34,8 @@ models:
         description: "Original Customer ID from the source system (Business Key)."
         tests:
           - not_null
+          # เพิ่มเทส unique เพื่อเช็คว่า GROUP BY ใน dim ทำงานถูก
+          - unique 
 
   - name: dim_product
     description: "Dimension table containing unique product and category information (มิติข้อมูลสินค้า)."
@@ -86,21 +87,21 @@ models:
           - not_null
           - unique
 
-  # --- FACT TABLE (อยู่ใน models/supply_mart/) ---
+  # --- FACT TABLE ---
   
-  - name: fct_order_items
+  # 🚨 FIX 3: แก้ชื่อ 'fct_order_items' ให้ตรงกับชื่อไฟล์ 'fact_order_item.sql'
+  - name: fact_order_item
     description: "Core fact table containing order item measures and foreign keys to all dimensions (ตารางข้อเท็จจริงรายการสั่งซื้อ)."
     columns:
-      - name: order_item_key
-        description: "Primary Key (Surrogate Key) for each line item."
-        tests:
-          - not_null
-          - unique
-      - name: order_item_id
-        description: "Original Order Item ID (Degenerate Dimension)."
-        tests:
-          - not_null
       
+      # 🚨 FIX 4: ย้ายเทส Primary Key มาที่ order_item_id 
+      #         (เพราะ 'order_item_key' ไม่มีอยู่จริงใน SQL)
+      - name: order_item_id
+        description: "Primary Key (Original Order Item ID), unique after deduplication."
+        tests:
+          - not_null
+          - unique # ⬅️ เทสนี้สำคัญมาก
+
       # FOREIGN KEY TESTS (Relationships)
       - name: customer_key
         description: "FK to dim_customer."
@@ -122,6 +123,13 @@ models:
         description: "FK to dim_date (Order Date)."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      
+      - name: shipping_date_key
+        description: "FK to dim_date (Shipping Date)."
+        tests:
           - relationships:
               to: ref('dim_date')
               field: date_key
