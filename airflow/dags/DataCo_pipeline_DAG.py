@@ -85,34 +85,52 @@ with DAG(
     task_id="ingest_csv",
     python_callable=ingest_csv_to_postgres,
     )
-    
-    validate_staging = BashOperator(
-        task_id="validate_staging",
+    fix_staging_types = PythonOperator(
+            task_id="fix_staging_types",
+            python_callable=fix_data_types_in_staging,
+        )   
+    gx_add_data_source = BashOperator(
+        task_id="gx_add_data_source",
+        bash_command=(
+        "cd /workspace && "
+        "python gx_scripts/add_datasource.py"
+        )
+    ) 
+    gx_create_expectation_staging = BashOperator(
+        task_id="gx_create_expectation_staging",
+        bash_command=(
+        "cd /workspace && "
+        "python gx_scripts/create_supply_chain_expectations.py"
+        )
+    ) 
+    gx_create_checkpoint_staging = BashOperator(
+        task_id="gx_create_checkpoint_staging",
+        bash_command=(
+        "cd /workspace && "
+        "python gx_scripts/create_supply_chain_checkpoint.py"
+        )
+    ) 
+    gx_validate_staging = BashOperator(
+        task_id="gx_validate_staging",
         bash_command=(
         "cd /workspace/gx && "
         "great_expectations checkpoint run stg_supply_chain_checkpoint"
         )
-    ) 
-
-    fix_staging_types = PythonOperator(
-            task_id="fix_staging_types",
-            python_callable=fix_data_types_in_staging,
-        )  
-
+    )
     dbt_run_core = BashOperator(
         task_id="dbt_run_core",
         bash_command="cd /usr/app/supply_chain_core && dbt run --select core",
     )
-    validate_core = BashOperator(
-        task_id="validate_core",
+    dbt_test_core = BashOperator(
+        task_id="dbt_test_core",
         bash_command="cd /usr/app/supply_chain_core && dbt test --select core",
     )
     dbt_run_mart = BashOperator(
         task_id="dbt_run_mart",
         bash_command="cd /usr/app/supply_chain_mart && dbt run --select mart",
     )
-    validate_mart = BashOperator(
-        task_id="validate_mart",
+    dbt_test_mart = BashOperator(
+        task_id="dbt_test_mart",
         bash_command="cd /usr/app/supply_chain_mart && dbt test --select mart",
     )
     
@@ -130,4 +148,4 @@ with DAG(
     #     """,
     # )
     
-    ingest_csv >> fix_staging_types >> validate_staging >> dbt_run_core >> validate_core >> dbt_run_mart >> validate_mart
+    ingest_csv >> fix_staging_types >> gx_add_data_source >> gx_create_expectation_staging >> gx_create_checkpoint_staging >> gx_validate_staging >> dbt_run_core >> dbt_test_core >> dbt_run_mart >> dbt_test_mart

@@ -21,12 +21,11 @@ checkpoint = context.add_or_update_checkpoint(
 )
 
 print(f"✅ Checkpoint '{checkpoint_name}' is created.")
+# # รันทดสอบทันที
+# result = context.run_checkpoint(checkpoint_name)
+# print(f"Checkpoint run result: {result['success']}")
 
-# รันทดสอบทันที
-result = context.run_checkpoint(checkpoint_name)
-print(f"Checkpoint run result: {result['success']}")
-
-for vr in result['run_results'].values():
-    validation_result = vr['validation_result']
-    for exp in validation_result['results']:
-        print(exp['expectation_config']['expectation_type'], exp['success'])
+# for vr in result['run_results'].values():
+#     validation_result = vr['validation_result']
+#     for exp in validation_result['results']:
+#         print(exp['expectation_config']['expectation_type'], exp['success'])
