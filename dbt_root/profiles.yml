@@ -1,4 +1,4 @@
-supply_chain:
+supply_chain_core:
   outputs:
     dev:
       dbname: dp_course
@@ -10,7 +10,7 @@ supply_chain:
       type: postgres
       user: dpuser
   target: dev
-supply_mart:
+supply_chain_mart:
   outputs:
     dev:
       dbname: dp_course
