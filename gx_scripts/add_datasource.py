@@ -23,18 +23,27 @@ datasource.add_table_asset(
 # print("Adding assets for Analytics schema...")
 
 # # Asset สำหรับตาราง Fact
-# datasource.add_table_asset(
-#     name="fact_order_item",
-#     schema_name="mart_supply_mart", 
-#     table_name="fact_order_item"
-# )
+datasource.add_table_asset(
+    name="fct_sales_items",
+    schema_name="mart_mart", 
+    table_name="fct_sales_items"
+)
+
+#     (เพิ่ม) ตาราง Fact ที่ 2 ที่ขาดไป
+datasource.add_table_asset(
+    name="fct_shipping_orders",      # <-- เพิ่มใหม่
+    schema_name="mart_mart", 
+    table_name="fct_shipping_orders" # <-- เพิ่มใหม่
+)
 
 # # Asset สำหรับตาราง Dimension ทั้งหมด
-# datasource.add_table_asset(name="dim_customer", schema_name="mart_supply_mart", table_name="dim_customer")
-# datasource.add_table_asset(name="dim_product", schema_name="mart_supply_mart", table_name="dim_product")
-# datasource.add_table_asset(name="dim_location", schema_name="mart_supply_mart", table_name="dim_location")
-# datasource.add_table_asset(name="dim_shipping", schema_name="mart_supply_mart", table_name="dim_shipping")
-# datasource.add_table_asset(name="dim_date", schema_name="mart_supply_mart", table_name="dim_date")
+datasource.add_table_asset(name="dim_customer", schema_name="mart_mart", table_name="dim_Customer")
+datasource.add_table_asset(name="dim_product", schema_name="mart_mart", table_name="dim_Product")
+datasource.add_table_asset(name="dim_location", schema_name="mart_mart", table_name="dim_Location")
+datasource.add_table_asset(name="dim_shipping", schema_name="mart_mart", table_name="dim_ShippingMode")
+datasource.add_table_asset(name="dim_date", schema_name="mart_mart", table_name="dim_OrderStatus")
+datasource.add_table_asset(name="dim_date", schema_name="mart_mart", table_name="dim_DeliveryStatus")
+datasource.add_table_asset(name="dim_date", schema_name="mart_mart", table_name="dim_Date")
 
 
 print("✅ Datasource and all assets are ready.")
