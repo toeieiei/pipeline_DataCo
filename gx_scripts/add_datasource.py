@@ -40,9 +40,9 @@ datasource.add_table_asset(
 datasource.add_table_asset(name="dim_customer", schema_name="mart_mart", table_name="dim_Customer")
 datasource.add_table_asset(name="dim_product", schema_name="mart_mart", table_name="dim_Product")
 datasource.add_table_asset(name="dim_location", schema_name="mart_mart", table_name="dim_Location")
-datasource.add_table_asset(name="dim_shipping", schema_name="mart_mart", table_name="dim_ShippingMode")
-datasource.add_table_asset(name="dim_orderstatus", schema_name="mart_mart", table_name="dim_OrderStatus")
-datasource.add_table_asset(name="dim_deliverystatus", schema_name="mart_mart", table_name="dim_DeliveryStatus")
+datasource.add_table_asset(name="dim_shipping_mode", schema_name="mart_mart", table_name="dim_ShippingMode")
+datasource.add_table_asset(name="dim_order_status", schema_name="mart_mart", table_name="dim_OrderStatus")
+datasource.add_table_asset(name="dim_delivery_status", schema_name="mart_mart", table_name="dim_DeliveryStatus")
 datasource.add_table_asset(name="dim_date", schema_name="mart_mart", table_name="dim_Date")
 
 
