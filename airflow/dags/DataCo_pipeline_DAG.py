@@ -117,6 +117,10 @@ with DAG(
         "great_expectations checkpoint run stg_supply_chain_checkpoint"
         )
     )
+    dbt_deps_core = BashOperator(
+        task_id="dbt_deps_core",
+        bash_command="cd /usr/app/supply_chain_core && dbt deps",
+    )
     dbt_run_core = BashOperator(
         task_id="dbt_run_core",
         bash_command="cd /usr/app/supply_chain_core && dbt run --select core",
@@ -124,6 +128,10 @@ with DAG(
     dbt_test_core = BashOperator(
         task_id="dbt_test_core",
         bash_command="cd /usr/app/supply_chain_core && dbt test --select core",
+    )
+    dbt_deps_mart = BashOperator(
+        task_id="dbt_deps_mart",
+        bash_command="cd /usr/app/supply_chain_mart && dbt deps",
     )
     dbt_run_mart = BashOperator(
         task_id="dbt_run_mart",
@@ -148,4 +156,4 @@ with DAG(
     #     """,
     # )
     
-    ingest_csv >> fix_staging_types >> gx_add_data_source >> gx_create_expectation_staging >> gx_create_checkpoint_staging >> gx_validate_staging >> dbt_run_core >> dbt_test_core >> dbt_run_mart >> dbt_test_mart
+    ingest_csv >> fix_staging_types >> gx_add_data_source >> gx_create_expectation_staging >> gx_create_checkpoint_staging >> gx_validate_staging >> dbt_deps_core >> dbt_run_core >> dbt_test_core >> dbt_deps_mart >> dbt_run_mart >> dbt_test_mart

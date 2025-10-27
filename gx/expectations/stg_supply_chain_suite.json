@@ -52,7 +52,7 @@
       "expectation_type": "expect_column_values_to_be_between",
       "kwargs": {
         "column": "order date (DateOrders)",
-        "max_value": "2025-10-25",
+        "max_value": "2025-10-27",
         "parse_strings_as_datetimes": true
       },
       "meta": {}
